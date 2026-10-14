@@ -1,0 +1,33 @@
+name: Build LUAN GROUP Windows App
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout project
+        uses: actions/checkout@v4
+      - name: Install Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+      - name: Validate source
+        run: go test ./...
+      - name: Build portable Windows x64 EXE
+        shell: pwsh
+        run: go build -trimpath -ldflags="-s -w -H=windowsgui" -o LUAN-GROUP-AI-Layer-Studio-Windows-x64.exe .
+      - name: Upload Windows executable
+        uses: actions/upload-artifact@v4
+        with:
+          name: LUAN-GROUP-AI-Layer-Studio-Windows-x64
+          path: LUAN-GROUP-AI-Layer-Studio-Windows-x64.exe
+          if-no-files-found: error
+          retention-days: 30
